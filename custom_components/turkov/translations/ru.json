@@ -61,13 +61,26 @@
         "title": "Настройки устройства",
         "data": {
           "host": "Адрес узла",
-          "enable_all_entities": "Разрешить добавление несовместимых объектов"
+          "enable_all_entities": "Разрешить добавление несовместимых объектов",
+          "swap_temp_sensors": "Поменять местами in_temp/exh_temp (обход бага прошивки 2.14)"
         }
       }
     }
   },
   "entity": {
     "sensor": {
+      "indoor_temperature": {
+        "name": "Температура в помещении"
+      },
+      "indoor_humidity": {
+        "name": "Влажность в помещении"
+      },
+      "intake_fan_speed": {
+        "name": "Скорость приточного вентилятора"
+      },
+      "exhaust_fan_speed": {
+        "name": "Скорость вытяжного вентилятора"
+      },
       "filter_life_percentage": {
         "name": "Загрязнённость фильтра"
       },

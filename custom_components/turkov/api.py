@@ -597,6 +597,12 @@ class TurkovDevice:
         "second_relay_name": ("relay_2_name", str),
     }
 
+    TEMP_SWAP_KEYS: ClassVar[Mapping[str, str]] = {
+        # 2.14 firmware bug workaround: in_temp/exh_temp are swapped
+        "indoor_temperature": "exh_temp",
+        "exhaust_temperature": "in_temp",
+    }
+
     def __str__(self) -> str:
         """Convert object to string."""
         return f"{self.__class__.__name__}[{_log_hide_id(self._id)}]"
@@ -677,6 +683,7 @@ class TurkovDevice:
         self.air_pressure: Optional[float] = None
         self.indoor_humidity: Optional[float] = None
         self.exhaust_temperature: Optional[float] = None
+        self.swap_temp_sensors: bool = False
         self.co2_level: Optional[float] = None
         self.current_temperature: Optional[float] = None
         self.current_humidity: Optional[float] = None
@@ -854,7 +861,11 @@ class TurkovDevice:
                 continue
 
             try:
-                value = device_data[key]
+                value = device_data[
+                    self.TEMP_SWAP_KEYS.get(attribute_name, key)
+                    if self.swap_temp_sensors
+                    else key
+                ]
             except KeyError:
                 if not mark_as_none_if_not_present:
                     continue

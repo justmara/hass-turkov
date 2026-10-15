@@ -39,6 +39,27 @@ ENTITY_TYPES: tuple[TurkovSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
     ),
     TurkovSensorEntityDescription(
+        key="indoor_temperature",
+        name="Indoor Temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    TurkovSensorEntityDescription(
+        key="indoor_humidity",
+        name="Indoor Humidity",
+        device_class=SensorDeviceClass.HUMIDITY,
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    TurkovSensorEntityDescription(
+        key="exhaust_temperature",
+        name="Exhaust Temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    TurkovSensorEntityDescription(
         key="filter_life_percentage",
         name="Filter Used Percentage",
         native_unit_of_measurement=PERCENTAGE,
@@ -53,13 +74,6 @@ ENTITY_TYPES: tuple[TurkovSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPressure.PA,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-    ),
-    TurkovSensorEntityDescription(
-        key="exhaust_temperature",
-        name="Exhaust Temperature",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        state_class=SensorStateClass.MEASUREMENT,
     ),
     TurkovSensorEntityDescription(
         key="intake_fan_speed",

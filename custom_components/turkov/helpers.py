@@ -26,6 +26,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .api import TurkovAPI
 from .const import (
     CONF_ENABLE_ALL_ENTITIES,
+    CONF_SWAP_TEMP_SENSORS,
     CONF_ACCESS_TOKEN_EXPIRES_AT,
     CONF_REFRESH_TOKEN,
     CONF_REFRESH_TOKEN_EXPIRES_AT,
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
 HOST_OPTIONS_SCHEMA: Final = vol.Schema(
     {
         vol.Optional(CONF_ENABLE_ALL_ENTITIES, default=False): cv.boolean,
+        vol.Optional(CONF_SWAP_TEMP_SENSORS, default=False): cv.boolean,
     },
     extra=vol.ALLOW_EXTRA,
 )

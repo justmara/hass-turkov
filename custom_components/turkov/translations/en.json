@@ -14,8 +14,8 @@
       "user": {
         "description": "Select appropriate connection method.\n\nFor cloud (E-mail) configurations both cloud and local control are available.",
         "menu_options": {
-          "email": "\u2601\uFE0F Cloud",
-          "host": "\uD83D\uDDA7 Local"
+          "email": "☁️ Cloud",
+          "host": "🖧 Local"
         }
       },
       "email": {
@@ -37,6 +37,46 @@
         "data": {
           "host": "Host"
         }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "host": {
+        "title": "Device settings",
+        "data": {
+          "host": "Host",
+          "enable_all_entities": "Allow adding incompatible entities",
+          "swap_temp_sensors": "Swap in_temp/exh_temp - 2.14 bug workaround"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "outdoor_temperature": {
+        "name": "Outdoor Temperature"
+      },
+      "indoor_temperature": {
+        "name": "Indoor Temperature"
+      },
+      "indoor_humidity": {
+        "name": "Indoor Humidity"
+      },
+      "exhaust_temperature": {
+        "name": "Exhaust Temperature"
+      },
+      "filter_life_percentage": {
+        "name": "Filter Used Percentage"
+      },
+      "air_pressure": {
+        "name": "Air Pressure"
+      },
+      "intake_fan_speed": {
+        "name": "Intake Fan Speed"
+      },
+      "exhaust_fan_speed": {
+        "name": "Exhaust Fan Speed"
       }
     }
   }

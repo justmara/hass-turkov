@@ -27,6 +27,7 @@ from .const import (
     CONF_REFRESH_TOKEN,
     CONF_REFRESH_TOKEN_EXPIRES_AT,
     CONF_ENABLE_ALL_ENTITIES,
+    CONF_SWAP_TEMP_SENSORS,
 )
 from .helpers import (
     HOST_OPTIONS_SCHEMA,
@@ -71,6 +72,8 @@ async def async_setup_email_entry(
         if host := host_config.get(CONF_HOST):
             turkov_device.host = host
 
+        turkov_device.swap_temp_sensors = host_config[CONF_SWAP_TEMP_SENSORS]
+
         turkov_device_coordinators[
             turkov_device_id
         ] = TurkovDeviceUpdateCoordinator(
@@ -90,15 +93,18 @@ async def async_setup_host_entry(
         host=entry.data[CONF_HOST],
     )
 
+    host_config = HOST_DATA_SCHEMA(
+        {**dict(entry.options), **dict(entry.data)},
+    )
+    turkov_device.swap_temp_sensors = host_config[CONF_SWAP_TEMP_SENSORS]
+
     await turkov_device.update_state()
 
     return {
         entry.data[CONF_HOST]: TurkovDeviceUpdateCoordinator(
             hass,
             turkov_device=turkov_device,
-            host_config=HOST_DATA_SCHEMA(
-                dict(entry.data),
-            ),
+            host_config=host_config,
         )
     }
 

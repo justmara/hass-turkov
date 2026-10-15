@@ -158,9 +158,9 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
 
         # Calculate fan modes
         if device.fan_config is not None:
-            # New firmware: numeric speeds 1..steps, optional modbus mode
+            # New firmware: numeric speeds 1..steps, optional modbus mode.
+            # On/off is controlled via HVAC mode, not fan mode
             fan_modes = [str(i) for i in range(1, device.max_fan_speed + 1)]
-            fan_modes.append(FAN_OFF)
             if device.modbus_fan_supported:
                 fan_modes.append(FAN_MODBUS)
             self._attr_fan_modes = fan_modes
