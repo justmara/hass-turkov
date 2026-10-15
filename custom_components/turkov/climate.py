@@ -22,6 +22,8 @@ from . import TurkovDeviceUpdateCoordinator
 from .const import DOMAIN
 from .entity import TurkovEntity, TurkovEntityDescription
 
+FAN_MODBUS: Final = "Modbus"
+
 
 @dataclass
 class TurkovClimateEntityDescription(
@@ -155,20 +157,40 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
         device = self.coordinator.turkov_device
 
         # Calculate fan modes
-        fan_modes = {FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_OFF}
-        if getattr(self, "_attr_fan_modes", None):
-            fan_modes.update(self._attr_fan_modes)
-        if device.fan_mode == "both":
-            fan_modes.add(FAN_AUTO)
-        self._attr_fan_modes = list(fan_modes)
+        if device.fan_config is not None:
+            # New firmware: numeric speeds 1..steps, optional modbus mode
+            fan_modes = [str(i) for i in range(1, device.max_fan_speed + 1)]
+            fan_modes.append(FAN_OFF)
+            if device.modbus_fan_supported:
+                fan_modes.append(FAN_MODBUS)
+            self._attr_fan_modes = fan_modes
+        else:
+            # Legacy firmware: low/medium/high presets, optional auto
+            fan_modes = {FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_OFF}
+            if getattr(self, "_attr_fan_modes", None):
+                fan_modes.update(self._attr_fan_modes)
+            if device.fan_mode == "both":
+                fan_modes.add(FAN_AUTO)
+            self._attr_fan_modes = list(fan_modes)
 
         # Calculate current fan mode
         if (fan_speed := device.fan_speed) == "auto":
-            self._attr_fan_mode = FAN_AUTO
-        elif fan_speed in ("1", "2", "3"):
+            # "auto" is a legacy (pre-fan_config) firmware mode
+            self._attr_fan_mode = (
+                FAN_AUTO if device.fan_config is None else FAN_OFF
+            )
+        elif fan_speed == "modbus" and device.modbus_fan_supported:
+            self._attr_fan_mode = FAN_MODBUS
+        elif device.fan_config is None and fan_speed in ("1", "2", "3"):
             self._attr_fan_mode = (FAN_LOW, FAN_MEDIUM, FAN_HIGH)[
                 int(fan_speed) - 1
             ]
+        elif (
+            fan_speed is not None
+            and fan_speed.isdecimal()
+            and 1 <= int(fan_speed) <= device.max_fan_speed
+        ):
+            self._attr_fan_mode = str(int(fan_speed))
         else:
             self._attr_fan_mode = FAN_OFF
 
@@ -204,10 +226,20 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
             # Handle all other existing modes
             if fan_mode == FAN_AUTO:
                 fan_speed_value = "auto"
-            elif fan_mode in (FAN_LOW, FAN_MEDIUM, FAN_HIGH):
+            elif fan_mode == FAN_MODBUS:
+                fan_speed_value = "modbus"
+            elif (
+                device.fan_config is None
+                and fan_mode in (FAN_LOW, FAN_MEDIUM, FAN_HIGH)
+            ):
                 fan_speed_value = str(
                     (FAN_LOW, FAN_MEDIUM, FAN_HIGH).index(fan_mode) + 1
                 )
+            elif (
+                fan_mode.isdecimal()
+                and 1 <= int(fan_mode) <= device.max_fan_speed
+            ):
+                fan_speed_value = fan_mode
             else:
                 raise ValueError(f"Fan mode {fan_mode} not found in mapping")
 

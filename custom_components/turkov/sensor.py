@@ -61,6 +61,22 @@ ENTITY_TYPES: tuple[TurkovSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    TurkovSensorEntityDescription(
+        key="intake_fan_speed",
+        name="Intake Fan Speed",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        icon="mdi:fan",
+    ),
+    TurkovSensorEntityDescription(
+        key="exhaust_fan_speed",
+        name="Exhaust Fan Speed",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        icon="mdi:fan",
+    ),
 )
 
 

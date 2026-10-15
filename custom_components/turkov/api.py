@@ -572,6 +572,9 @@ class TurkovDevice:
         "is_on": ("on", None),
         "fan_speed": ("fan_speed", str),
         "fan_mode": ("fan_mode", None),
+        "fan_config": ("fan_config", None),
+        "intake_fan_speed": ("fan_in", float),
+        "exhaust_fan_speed": ("fan_ex", float),
         "target_temperature": ("temp_sp", float),
         "selected_mode": ("mode", str),
         "setup": ("setup", str),
@@ -661,6 +664,9 @@ class TurkovDevice:
         self.is_on: Optional[bool] = None
         self.fan_speed: Optional[str] = None
         self.fan_mode: Optional[str] = None
+        self.fan_config: Optional[dict] = None
+        self.intake_fan_speed: Optional[float] = None
+        self.exhaust_fan_speed: Optional[float] = None
         self.target_temperature: Optional[float] = None
         # self.current_mode: Optional[str] = None
         self.selected_mode: Optional[str] = None
@@ -717,6 +723,24 @@ class TurkovDevice:
         if not (0 < value < 65536):
             raise ValueError("port must be within [1:65535] range")
         self._port = value
+
+    @property
+    def max_fan_speed(self) -> int:
+        """Return maximum supported fan speed (FAN_STEPS register)"""
+        if (fan_config := self.fan_config) is None:
+            return 3
+        try:
+            steps = int(fan_config.get("steps", 3))
+        except (TypeError, ValueError):
+            steps = 3
+        return min(max(steps, 3), 10)
+
+    @property
+    def modbus_fan_supported(self) -> bool:
+        """Return whether direct (modbus) fan control speed is supported"""
+        if (fan_config := self.fan_config) is None:
+            return False
+        return bool(fan_config.get("modbus", False))
 
     async def get_state_local(self) -> Dict[str, Any]:
         if not self.host:
@@ -920,9 +944,32 @@ class TurkovDevice:
     async def turn_off(self) -> None:
         await self.set_value("on", "false")
 
-    async def set_fan_speed(self, fan_speed: str) -> None:
-        if fan_speed not in ("auto", "0", "1", "2", "3"):
-            raise TurkovAPIValueError("valid fan speed not specified")
+    async def set_fan_speed(self, fan_speed: Union[int, str]) -> None:
+        """
+        Set the fan speed.
+
+        :param fan_speed: Speed number (1..max), "auto" (legacy firmware
+            only) or "modbus" (direct fan control, when supported)
+        """
+        fan_speed = str(fan_speed)
+        if fan_speed == "auto":
+            # Legacy (pre-fan_config) firmware mode
+            if self.fan_config is not None:
+                raise TurkovAPIValueError(
+                    "auto fan speed is not supported by device"
+                )
+        elif fan_speed == "modbus":
+            if not self.modbus_fan_supported:
+                raise TurkovAPIValueError(
+                    "modbus fan speed is not supported by device"
+                )
+        else:
+            try:
+                speed = int(fan_speed)
+            except ValueError:
+                speed = -1
+            if not 1 <= speed <= self.max_fan_speed:
+                raise TurkovAPIValueError("valid fan speed not specified")
 
         await self.set_value("fan_speed", fan_speed)
 
