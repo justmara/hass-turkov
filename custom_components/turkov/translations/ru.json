@@ -38,7 +38,10 @@
         "data": {
           "host": "Адрес узла",
           "enable_all_entities": "Разрешить добавление несовместимых объектов",
-          "swap_temp_sensors": "Обменять значения in_temp/exh_temp (вкл: Zenit / Capsule / i-Vent)"
+          "swap_temp_sensors": "Обменять значения in_temp/exh_temp"
+        },
+        "data_description": {
+          "swap_temp_sensors": "Какое из полей in_temp/exh_temp содержит комнатную температуру, зависит от семейства установки.\n\nВключите для Zenit, Capsule и i-Vent — у них in_temp это температура подачи, а комнатная температура читается из exh_temp.\nОставьте выключенным для Capsule Pool и Hydra — у них in_temp уже является температурой в помещении."
         }
       }
     }
@@ -60,11 +63,14 @@
       },
       "host": {
         "title": "Настройки устройства",
-        "description": "Turkov по-разному трактует поля in_temp/exh_temp в зависимости от семейства установки.\n\nВключите для Zenit, Capsule и i-Vent — у них in_temp это температура подачи, а комнатная температура читается из exh_temp.\nОставьте выключенным для Capsule Pool и Hydra — у них in_temp уже является температурой в помещении.",
+        "description": "Какое из полей in_temp/exh_temp содержит комнатную температуру, зависит от семейства установки.",
         "data": {
           "host": "Адрес узла",
           "enable_all_entities": "Разрешить добавление несовместимых объектов",
-          "swap_temp_sensors": "Обменять значения in_temp/exh_temp (вкл: Zenit / Capsule / i-Vent)"
+          "swap_temp_sensors": "Обменять значения in_temp/exh_temp"
+        },
+        "data_description": {
+          "swap_temp_sensors": "Включите для Zenit, Capsule и i-Vent — у них in_temp это температура подачи, а комнатная температура читается из exh_temp.\n\nОставьте выключенным для Capsule Pool и Hydra — у них in_temp уже является температурой в помещении."
         }
       }
     }
