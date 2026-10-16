@@ -253,7 +253,14 @@ class TurkovOptionsFlow(OptionsFlowWithConfigEntry):
         super().__init__(*args, **kwargs)
         self._current_id: Optional[str] = None
         self._devices: Optional[dict[str, TurkovDevice]] = None
-        self.initial_options = deepcopy(dict(self.config_entry.options))
+        self._initial_options: Optional[dict[str, Any]] = None
+
+    @property
+    def initial_options(self) -> dict[str, Any]:
+        """Entry options at flow start, to detect in-flow changes."""
+        if self._initial_options is None:
+            self._initial_options = deepcopy(dict(self.config_entry.options))
+        return self._initial_options
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None

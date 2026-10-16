@@ -37,7 +37,8 @@
         "description": "Введите домен или IP-адрес узла для подключения к устройству Turkov напрямую.",
         "data": {
           "host": "Адрес узла",
-          "enable_all_entities": "Разрешить добавление несовместимых объектов"
+          "enable_all_entities": "Разрешить добавление несовместимых объектов",
+          "swap_temp_sensors": "Обменять значения in_temp/exh_temp (вкл: Zenit / Capsule / i-Vent)"
         }
       }
     }
@@ -59,10 +60,11 @@
       },
       "host": {
         "title": "Настройки устройства",
+        "description": "Turkov по-разному трактует поля in_temp/exh_temp в зависимости от семейства установки.\n\nВключите для Zenit, Capsule и i-Vent — у них in_temp это температура подачи, а комнатная температура читается из exh_temp.\nОставьте выключенным для Capsule Pool и Hydra — у них in_temp уже является температурой в помещении.",
         "data": {
           "host": "Адрес узла",
           "enable_all_entities": "Разрешить добавление несовместимых объектов",
-          "swap_temp_sensors": "Поменять местами in_temp/exh_temp (обход бага прошивки 2.14)"
+          "swap_temp_sensors": "Обменять значения in_temp/exh_temp (вкл: Zenit / Capsule / i-Vent)"
         }
       }
     }

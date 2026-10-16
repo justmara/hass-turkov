@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Turkov API Atlas</title>
+    <style>
+      :root {
+        --ink: #19252b;
+        --muted: #65747a;
+        --paper: #f4f3ee;
+        --panel: #fffefa;
+        --line: #d9ddd8;
+        --teal: #087f78;
+        --teal-soft: #d8efeb;
+        --coral: #c65341;
+        --coral-soft: #fde2d9;
+        --yellow: #f2c94c;
+        --shadow: 0 18px 50px rgba(22, 42, 43, 0.09);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font:
+          15px/1.5 "Segoe UI",
+          Tahoma,
+          sans-serif;
+      }
+      .shell {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 34px 28px 64px;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 36px 40px 42px;
+        color: #f7fbf7;
+        background: #173d42;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+      .hero:after {
+        content: "";
+        position: absolute;
+        right: -50px;
+        bottom: -100px;
+        width: 360px;
+        height: 360px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 28px rgba(255, 255, 255, 0.05),
+          0 0 0 58px rgba(255, 255, 255, 0.04);
+      }
+      .eyebrow {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 14px;
+        color: #9fe0d8;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      h1 {
+        position: relative;
+        z-index: 1;
+        max-width: 780px;
+        margin: 0;
+        font:
+          700 clamp(32px, 5vw, 64px)/0.98 Georgia,
+          "Times New Roman",
+          serif;
+        letter-spacing: 0;
+      }
+      .lead {
+        position: relative;
+        z-index: 1;
+        max-width: 760px;
+        margin: 20px 0 0;
+        color: #d2e3df;
+        font-size: 17px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin: 24px 0 18px;
+      }
+      .search {
+        flex: 1 1 300px;
+        min-height: 48px;
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--ink);
+        font: inherit;
+        outline: none;
+      }
+      .search:focus {
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px var(--teal-soft);
+      }
+      .segmented {
+        display: flex;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #e8e9e2;
+      }
+      button,
+      select {
+        min-height: 40px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 13px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        cursor: pointer;
+      }
+      button.active {
+        background: var(--ink);
+        color: white;
+      }
+      select {
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 20px 0 22px;
+      }
+      .stat {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--panel);
+      }
+      .stat strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1;
+      }
+      .stat span {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+      table {
+        width: 100%;
+        min-width: 930px;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 15px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        color: #536267;
+        background: #eef0ea;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      tbody tr:hover {
+        background: #fbfaf3;
+      }
+      .concept {
+        min-width: 210px;
+        font-weight: 700;
+      }
+      .device {
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      code {
+        padding: 3px 7px;
+        border-radius: 6px;
+        background: #e8f4f1;
+        color: #075f5a;
+        font:
+          600 13px/1.4 Consolas,
+          monospace;
+        white-space: nowrap;
+      }
+      .empty {
+        color: #9aa4a4;
+      }
+      .mismatch {
+        background: var(--coral-soft);
+      }
+      .mismatch code {
+        background: #fff5ef;
+        color: #9c3d2d;
+      }
+      .flag {
+        display: inline-block;
+        margin-left: 7px;
+        padding: 3px 7px;
+        border-radius: 99px;
+        background: var(--coral);
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .unit {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .source {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .source a {
+        color: var(--teal);
+        text-decoration: none;
+      }
+      .source a:hover {
+        text-decoration: underline;
+      }
+      .note {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin: 18px 0 0;
+        padding: 15px 17px;
+        border-left: 4px solid var(--yellow);
+        background: #fff8dc;
+        color: #5d531f;
+      }
+      footer {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      @media (max-width: 760px) {
+        .shell {
+          padding: 16px 12px 40px;
+        }
+        .hero {
+          padding: 26px 23px 30px;
+          border-radius: 18px;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .toolbar {
+          align-items: stretch;
+        }
+        .segmented,
+        select {
+          width: 100%;
+        }
+        .segmented button {
+          flex: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">TURKOV · API ATLAS · 2026</p>
+        <h1>Один параметр.<br />Разные имена.</h1>
+        <p class="lead">
+          Сводка ключей из документации Wi‑Fi и MQTT для оборудования TURKOV.
+          Ищите по смыслу, типу устройства или исходному ключу.
+        </p>
+      </section>
+
+      <div class="toolbar" aria-label="Фильтры">
+        <input
+          class="search"
+          id="search"
+          type="search"
+          placeholder="Например: вытяжная температура, temp_sp, влажность…"
+          aria-label="Поиск по таблице" />
+        <select id="device" aria-label="Тип устройства">
+          <option value="all">Все типы устройств</option>
+        </select>
+        <div class="segmented" role="group" aria-label="Протокол">
+          <button class="active" data-protocol="all">Все</button
+          ><button data-protocol="wifi">Wi‑Fi</button
+          ><button data-protocol="mqtt">MQTT</button
+          ><button data-protocol="compare">Различия</button>
+        </div>
+      </div>
+
+      <section class="stats" aria-label="Статистика">
+        <div class="stat">
+          <strong id="shown">0</strong><span>строк показано</span>
+        </div>
+        <div class="stat">
+          <strong id="concepts">0</strong><span>логических параметров</span>
+        </div>
+        <div class="stat">
+          <strong id="mismatches">0</strong
+          ><span>разных ключей Wi‑Fi / MQTT</span>
+        </div>
+        <div class="stat"><strong>12</strong><span>исходных вкладок</span></div>
+      </section>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Параметр</th>
+              <th>Тип устройства</th>
+              <th>Описание</th>
+              <th>Wi‑Fi</th>
+              <th>MQTT</th>
+              <th>Источник</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>Важно</strong
+        ><span
+          >Красным отмечены случаи, где одно и то же понятие называется
+          по-разному. Самый заметный пример: температура на вытяжке у Zenit —
+          <code>exh_temp</code>, у Capsule Pool — <code>in_temp</code>, а в MQTT
+          — <code>indoor_temperature</code>.</span
+        >
+      </div>
+      <footer>
+        Источники:
+        <a href="https://wiki.turkov.ru/ru/equipment/wifi/vent">Wi‑Fi раздел</a>
+        и
+        <a href="https://wiki.turkov.ru/ru/equipment/mqtt/vent">MQTT раздел</a>
+        справочной TURKOV. В карточках источника открывается конкретная вкладка.
+      </footer>
+    </main>
+    <script>
+      const base = "https://wiki.turkov.ru/ru/equipment/";
+      const data = [
+        [
+          "Состояние установки",
+          "Вентустановки",
+          "ВКЛ / ВЫКЛ",
+          "on",
+          "on",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Состояние установки",
+          "Capsule Pool / Hydra",
+          "ВКЛ / ВЫКЛ",
+          "on",
+          "on",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Состояние установки",
+          "Notos",
+          "ВКЛ / ВЫКЛ",
+          "on",
+          "on",
+          "wifi/notos",
+          "mqtt/notos",
+        ],
+        [
+          "Состояние установки",
+          "OS / OSN",
+          "Состояние установки",
+          "on",
+          "on",
+          "wifi/os",
+          "mqtt/os",
+        ],
+        [
+          "Состояние установки",
+          "SensorPlus",
+          "ВКЛ / ВЫКЛ",
+          "enable",
+          "enable",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+        [
+          "Скорость вентиляторов",
+          "Вентустановки",
+          "Текущая скорость / режим вентиляторов",
+          "fan_speed",
+          "fan_speed",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Скорость вентиляторов",
+          "Capsule Pool / Hydra",
+          "Текущая скорость вентиляторов",
+          "fan_speed",
+          "fan_speed",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Скорость вентилятора",
+          "Настенный термостат",
+          "Режим работы вентилятора",
+          "fan_speed",
+          "fan_speed",
+          "wifi/thermostat",
+          "mqtt/thermostat",
+        ],
+        [
+          "Уставка температуры",
+          "Вентустановки",
+          "Заданная температура",
+          "temp_sp",
+          "temp_sp",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Уставка температуры",
+          "Capsule Pool / Hydra",
+          "Заданная температура",
+          "temp_sp",
+          "temp_sp",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Уставка температуры",
+          "Настенный термостат",
+          "Заданная температура",
+          "temp_sp",
+          "temp_sp",
+          "wifi/thermostat",
+          "mqtt/thermostat",
+        ],
+        [
+          "Режим работы",
+          "Вентустановки",
+          "Текущий режим установки",
+          "mode",
+          "mode",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Режим работы",
+          "Capsule Pool / Hydra",
+          "Режимы работы установки",
+          "mode",
+          "mode",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Наружная температура",
+          "Вентустановки",
+          "Температура в приточном канале с улицы",
+          "out_temp",
+          "outdoor_temperature",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Наружная температура",
+          "Capsule Pool / Hydra",
+          "Температура с улицы",
+          "out_temp",
+          "outoor_temperature",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Наружная температура",
+          "Notos",
+          "Температура с улицы",
+          "out_temp",
+          "outdoor_temperature",
+          "wifi/notos",
+          "mqtt/notos",
+        ],
+        [
+          "Температура подачи",
+          "Вентустановки",
+          "Температура после нагревателя",
+          "in_temp",
+          "supply_temperature",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Температура подачи",
+          "Capsule Pool / Hydra",
+          "Температура на подаче в помещение",
+          "supply_temperature",
+          "supply_temperature",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Температура на вытяжке",
+          "Вентустановки",
+          "Температура в помещении, вытяжной канал",
+          "exh_temp",
+          "indoor_temperature",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Температура на вытяжке",
+          "Capsule Pool / Hydra",
+          "Температура на вытяжке",
+          "in_temp",
+          "indoor_temperature",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Температура на вытяжке",
+          "Notos",
+          "Температура на вытяжке",
+          "in_temp",
+          "indoor_temperature",
+          "wifi/notos",
+          "mqtt/notos",
+        ],
+        [
+          "Влажность на вытяжке",
+          "Вентустановки",
+          "Влажность в помещении, вытяжной канал",
+          "in_humid",
+          "indoor_humidity",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Влажность на вытяжке",
+          "Capsule Pool / Hydra",
+          "Влажность на вытяжке",
+          "in_humid",
+          "indoor_humidity",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Влажность на вытяжке",
+          "Notos",
+          "Влажность на вытяжке",
+          "in_humid",
+          "indoor_humidity",
+          "wifi/notos",
+          "mqtt/notos",
+        ],
+        [
+          "Температура в помещении",
+          "OS / OSN",
+          "Измеренная температура",
+          "temp_curr",
+          "temp_curr",
+          "wifi/os",
+          "mqtt/os",
+        ],
+        [
+          "Температура в помещении",
+          "Настенный термостат",
+          "Температура в помещении",
+          "temp_curr",
+          "temp_curr",
+          "wifi/thermostat",
+          "mqtt/thermostat",
+        ],
+        [
+          "Влажность",
+          "OS / OSN",
+          "Измеренная влажность",
+          "hum_curr",
+          "hum_curr",
+          "wifi/os",
+          "mqtt/os",
+        ],
+        [
+          "Уставка влажности",
+          "Capsule Pool / Hydra",
+          "Заданная влажность",
+          "hum_sp",
+          "hum_sp",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Фильтр",
+          "Вентустановки",
+          "Загрязнение / наработка фильтра",
+          "filter",
+          "filter",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Фильтр",
+          "Capsule Pool / Hydra",
+          "Наработка фильтра",
+          "filter",
+          "filter",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "CO₂",
+          "Вентустановки",
+          "Значение с датчика углекислого газа",
+          "CO2_level",
+          "CO2_level",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "CO₂",
+          "SensorPlus",
+          "Значение PPM с датчика качества воздуха",
+          "co2_val",
+          "co2_val",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+        [
+          "Влажность SensorPlus",
+          "SensorPlus",
+          "Значение с датчика влажности",
+          "hum",
+          "hum_val",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+        [
+          "Температура SensorPlus",
+          "SensorPlus",
+          "Значение с датчика температуры",
+          "temp",
+          "temp_val",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+        [
+          "Вторая температура",
+          "SensorPlus",
+          "Значение со второго датчика температуры",
+          "temp2",
+          "temp2_val",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+        [
+          "Клапан нагревателя",
+          "Capsule Pool / Hydra",
+          "Степень открытия водяного нагревателя",
+          "water_heater_valve",
+          "water_heater_valve",
+          "wifi/pool",
+          "mqtt/pool",
+        ],
+        [
+          "Клапан охлаждения",
+          "Настенный термостат",
+          "Открытие клапана холодного контура",
+          "cool_valve",
+          "cool_valve",
+          "wifi/thermostat",
+          "mqtt/thermostat",
+        ],
+        [
+          "Клапан нагрева",
+          "Настенный термостат",
+          "Открытие клапана горячего контура",
+          "heat_valve",
+          "heat_valve",
+          "wifi/thermostat",
+          "mqtt/thermostat",
+        ],
+        [
+          "Ошибка",
+          "Вентустановки",
+          "Текущая ошибка",
+          "error",
+          "error",
+          "wifi/vent",
+          "mqtt/vent",
+        ],
+        [
+          "Ошибка",
+          "SensorPlus",
+          "Текущая ошибка",
+          "error",
+          "error",
+          "wifi/sensorplus",
+          "mqtt/sensorplus",
+        ],
+      ].map(
+        ([concept, device, description, wifi, mqtt, wifiPage, mqttPage]) => ({
+          concept,
+          device,
+          description,
+          wifi,
+          mqtt,
+          wifiPage,
+          mqttPage,
+        }),
+      );
+
+      const rows = document.querySelector("#rows");
+      const search = document.querySelector("#search");
+      const device = document.querySelector("#device");
+      const protocolButtons = [...document.querySelectorAll("[data-protocol]")];
+      let protocol = "all";
+      [...new Set(data.map((item) => item.device))]
+        .sort()
+        .forEach((name) =>
+          device.insertAdjacentHTML("beforeend", `<option>${name}</option>`),
+        );
+
+      function render() {
+        const term = search.value.toLowerCase().trim();
+        const selected = device.value;
+        const filtered = data.filter((item) => {
+          const synonyms =
+            item.concept === "Температура на вытяжке"
+              ? " вытяжная температура"
+              : "";
+          const text = (Object.values(item).join(" ") + synonyms).toLowerCase();
+          const matchesText = !term || text.includes(term);
+          const matchesDevice = selected === "all" || item.device === selected;
+          const isMismatch = item.wifi !== item.mqtt;
+          const matchesProtocol =
+            protocol === "all" ||
+            protocol === "wifi" ||
+            protocol === "mqtt" ||
+            (protocol === "compare" && isMismatch);
+          return matchesText && matchesDevice && matchesProtocol;
+        });
+        rows.innerHTML =
+          filtered
+            .map((item) => {
+              const mismatch = item.wifi !== item.mqtt;
+              return `<tr class="${mismatch ? "mismatch" : ""}"><td class="concept">${item.concept}${mismatch ? '<span class="flag">различие</span>' : ""}</td><td class="device">${item.device}</td><td>${item.description}</td><td><code>${item.wifi}</code></td><td><code>${item.mqtt}</code></td><td class="source"><a href="${base + item.wifiPage}" target="_blank" rel="noreferrer">Wi‑Fi</a> · <a href="${base + item.mqttPage}" target="_blank" rel="noreferrer">MQTT</a></td></tr>`;
+            })
+            .join("") ||
+          '<tr><td colspan="6" class="empty">Ничего не найдено. Попробуйте другой запрос.</td></tr>';
+        document.querySelector("#shown").textContent = filtered.length;
+        document.querySelector("#concepts").textContent = new Set(
+          filtered.map((item) => item.concept),
+        ).size;
+        document.querySelector("#mismatches").textContent = filtered.filter(
+          (item) => item.wifi !== item.mqtt,
+        ).length;
+      }
+      search.addEventListener("input", render);
+      device.addEventListener("change", render);
+      protocolButtons.forEach((button) =>
+        button.addEventListener("click", () => {
+          protocol = button.dataset.protocol;
+          protocolButtons.forEach((item) =>
+            item.classList.toggle("active", item === button),
+          );
+          render();
+        }),
+      );
+      render();
+    </script>
+  </body>
+</html>

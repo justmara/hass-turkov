@@ -35,7 +35,8 @@
       "host": {
         "description": "Provide a hostname or IP Address to connect to Turkov device locally.",
         "data": {
-          "host": "Host"
+          "host": "Host",
+          "swap_temp_sensors": "Swap in_temp/exh_temp (on: Zenit / Capsule / i-Vent)"
         }
       }
     }
@@ -44,10 +45,11 @@
     "step": {
       "host": {
         "title": "Device settings",
+        "description": "TURKOV defines in_temp/exh_temp differently per device family.\n\nTurn ON for Zenit, Capsule and i-Vent units — there in_temp is the supply temperature and the room temperature is read from exh_temp.\nLeave OFF for Capsule Pool and Hydra — there in_temp is already the room temperature.",
         "data": {
           "host": "Host",
           "enable_all_entities": "Allow adding incompatible entities",
-          "swap_temp_sensors": "Swap in_temp/exh_temp - 2.14 bug workaround"
+          "swap_temp_sensors": "Swap in_temp/exh_temp (on: Zenit / Capsule / i-Vent)"
         }
       }
     }

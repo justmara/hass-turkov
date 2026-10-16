@@ -23,6 +23,7 @@ from .const import DOMAIN
 from .entity import TurkovEntity, TurkovEntityDescription
 
 FAN_MODBUS: Final = "Modbus"
+FAN_TURBO: Final = "Turbo"
 
 
 @dataclass
@@ -158,11 +159,13 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
 
         # Calculate fan modes
         if device.fan_config is not None:
-            # New firmware: numeric speeds 1..steps, optional modbus mode.
-            # On/off is controlled via HVAC mode, not fan mode
+            # New firmware: numeric speeds 1..steps, optional modbus and
+            # turbo modes. On/off is controlled via HVAC mode, not fan mode
             fan_modes = [str(i) for i in range(1, device.max_fan_speed + 1)]
             if device.modbus_fan_supported:
                 fan_modes.append(FAN_MODBUS)
+            if device.turbo_fan_supported:
+                fan_modes.append(FAN_TURBO)
             self._attr_fan_modes = fan_modes
         else:
             # Legacy firmware: low/medium/high presets, optional auto
@@ -179,8 +182,11 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
             self._attr_fan_mode = (
                 FAN_AUTO if device.fan_config is None else FAN_OFF
             )
-        elif fan_speed == "modbus" and device.modbus_fan_supported:
+        elif fan_speed in ("0", "modbus") and device.modbus_fan_supported:
+            # Firmware 2.14 reports modbus (power) mode as fan_speed "0"
             self._attr_fan_mode = FAN_MODBUS
+        elif fan_speed == "turbo" and device.turbo_fan_supported:
+            self._attr_fan_mode = FAN_TURBO
         elif device.fan_config is None and fan_speed in ("1", "2", "3"):
             self._attr_fan_mode = (FAN_LOW, FAN_MEDIUM, FAN_HIGH)[
                 int(fan_speed) - 1
@@ -228,6 +234,8 @@ class TurkovClimateEntity(TurkovEntity, ClimateEntity):
                 fan_speed_value = "auto"
             elif fan_mode == FAN_MODBUS:
                 fan_speed_value = "modbus"
+            elif fan_mode == FAN_TURBO:
+                fan_speed_value = "turbo"
             elif (
                 device.fan_config is None
                 and fan_mode in (FAN_LOW, FAN_MEDIUM, FAN_HIGH)
